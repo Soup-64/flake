@@ -9,7 +9,7 @@
   # NIX SETTINGS
 
   networking.hostName = "Sienna";
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.11";
 
   # SYSTEM SETTINGS
 

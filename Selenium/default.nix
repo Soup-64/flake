@@ -10,6 +10,19 @@
   # NIX SETTINGS
 
   networking.hostName = "Selenium";
-  system.stateVersion = "25.05";
+  system.stateVersion = "26.05";
+
+  # HARDWARE
+
+  swapDevices = [ {
+    device = "/var/lib/swapfile";
+    size = 4*1024;
+  } ];
+
+  services.smartd = {
+      devices = [
+        { device = "/dev/disk/by-id/nvme-UMIS_RPETJ512MMW1MDQ_SS1D71551X1RC5664AVV"; }
+      ];
+  };
 
 }

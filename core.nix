@@ -97,15 +97,17 @@
   # Enable networking
   networking.networkmanager.wifi.powersave = false;
   networking.networkmanager.enable = true;
-  #networking.nameservers = [ "127.0.0.1:8053" ]; # breaks MTU VPN services
-  #services.resolved = {
-  #  enable = true;
-  #  dnssec = "true";
-  #  #domains = [ "~." ];
-  #  fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
-  #  #dnsovertls = "true"; # MTU blocks DoT
-  #};
-  #fix for qemu network bridging
+  
+  networking.nameservers = [ "1.1.1.1" "1.0.0.1" "141.219.100.30" ]; # may break MTU VPN services
+  services.resolved = {
+    enable = true;
+    settings.Resolve = {
+    DNSSEC = "true";
+    Domains = [ "~." ];
+    #DNSoverTLS = "true"; # MTU blocks DoT
+    };
+  };
+
   networking.firewall.trustedInterfaces = [ "virbr0" "wlp3s0" ];
 
   #virt filesystem stuff if you need it
@@ -117,6 +119,7 @@
     cifs-utils
     jq
     keyutils
+    wireless-regdb
     samba
     wget
     pciutils
@@ -155,6 +158,7 @@
     sbctl
     usbutils
     yt-dlp
+    rclone
   ];
 
   programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };

@@ -135,6 +135,7 @@
     #kdePackages.koko #gwenview but new but still bad
     kdePackages.kate
     kdePackages.plasma-vault
+    kdePackages.kamoso
     kdePackages.kdenlive
     kdePackages.filelight
     kdePackages.kcoreaddons
@@ -167,7 +168,12 @@
     unityhub #broken often
     arduino
     cameractrls-gtk4
+
+    openxr-loader
   ];
+
+  # godot needed
+  nixpkgs.config.android_sdk.accept_license = true;
 
   # Install firefox.
   programs.firefox = {
@@ -277,6 +283,12 @@
   };
 
   # MISC SERVICES
+
+  services.wivrn = {
+    enable = true;
+    openFirewall = true;
+    #autoStart = true;
+  };
 
   services.pcscd.enable = true; #smart cards and stuff
 
