@@ -1,20 +1,213 @@
 { config, lib, pkgs, inputs, ... }:
 {
-  # Specific to non-headless/user machines
+  # Common to machines with head
 
-  ###
-  ### Plasma stuff
-  ###
+  # SYSTEM STUFF
+  # ROCM is disabled because I am so tired of it breaking literally every nix unstable update
 
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager.plasma-login-manager.enable = true;
+  #brightness control
+  services.udev.packages = [pkgs.ddcutil];
+
+  hardware.i2c.enable = true;
+  hardware.keyboard.qmk.enable = true;
+
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     GTK_USE_PORTAL = "1";
     PINENTRY_KDE_USE_WALLET = "1";
+    FREETYPE_PROPERTIES="cff:no-stem-darkening=0 autofitter:no-stem-darkening=0";
     #KWIN_USE_OVERLAYS = "1";
   };
 
+  #clr is broken right now
+  #systemd.tmpfiles.rules =
+  #let
+  #  rocmEnv = pkgs.symlinkJoin {
+  #    name = "rocm-combined";
+  #    paths = with pkgs.rocmPackages; [
+  #      #rocblas
+  #      #hipblas
+  #      #clr
+  #    ];
+  #  };
+  #in [
+  #  #"L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+  #  "L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware"
+  #];
+# smash if rocm/clr is fucked, needed for QEMU
+  systemd.tmpfiles.rules = ["L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware"];
+
+  hardware.graphics = {
+  enable = true;
+  #package = pkgs.mesa;
+  enable32Bit = true;
+   extraPackages = with pkgs; [
+      libva-utils
+      #rocmPackages.clr.icd
+    ];
+  };
+
+  # bluetooth
+  hardware.bluetooth.enable = true; # enables support for Bluetooth
+  hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
+  hardware.bluetooth.settings = {
+    General = {
+      Experimental = true;
+      Enable = "Source,Sink,Media,Socket";
+    };
+  };
+
+  #desktops support desktop things like ntsync and desktop-y kernels
+  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+  boot.kernelModules = [
+    "ntsync"
+  ];
+
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+    extraArgs = [
+      "--performance" #lavd thing
+    ];
+  };
+
+  # FONTS
+
+  fonts.fontconfig.subpixel.rgba = "rgb";
+  fonts.fontconfig.useEmbeddedBitmaps = true;
+  fonts.fontconfig.localConf = ''
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+    <fontconfig>
+      <description>Accept bitmap fonts</description>
+    <!-- Accept bitmap fonts -->
+    <selectfont>
+      <acceptfont>
+      <pattern>
+        <patelt name="outline"><bool>false</bool></patelt>
+      </pattern>
+      </acceptfont>
+    </selectfont>
+    </fontconfig>
+  '';
+
+  fonts.packages = with pkgs; [
+    terminus_font # few moments of bitmap fonts breaking in nixpkgs :(
+    spleen
+    terminus_font_ttf
+    courier-prime
+    inter
+    minecraftia
+    monocraft
+    corefonts
+    vista-fonts
+  ];
+
+  # SOFTWARE
+
+  environment.systemPackages = with pkgs; [
+    xauth #SSH -Y
+    blender #clr/rocm is broken sometimes
+    #zluda  #amd cuda, I guess
+    gpu-screen-recorder-gtk
+    vscode.fhs
+    protonup-qt
+    #input-remapper
+    git-cola
+    btop
+    usbutils
+    killall
+    nvtopPackages.amd
+    godot3-mono
+    godot-mono
+    gimp3
+    dolphin-emu
+    yt-dlp
+    libreoffice-qt-fresh
+    mediawriter
+    pied
+    alsa-utils
+    pinentry-qt #gpg
+    ddcutil
+    piper
+    mpv
+    mangohud
+    goverlay
+    kdiskmark
+    kdePackages.partitionmanager
+    kdePackages.kgpg
+    kdePackages.plasma5support
+    #kdePackages.koko #gwenview but new but still bad
+    kdePackages.kate
+    kdePackages.plasma-vault
+    kdePackages.kdenlive
+    kdePackages.filelight
+    kdePackages.kcoreaddons
+    kdePackages.krdc
+    kdePackages.kdesdk-thumbnailers
+    kdePackages.kimageformats
+    kdePackages.kdegraphics-thumbnailers
+    kdePackages.ffmpegthumbs
+    kdePackages.kdialog
+    (kdePackages.spectacle.override {
+      tesseractLanguages = [ "all" ];
+    })
+    kdePackages.libkdcraw
+    libraw
+    tesseract
+    sbctl
+    (discord-canary.override {
+      withOpenASAR = true;
+      withVencord = true;
+    })
+    #vesktop
+    jetbrains.pycharm-oss
+    #jetbrains.clion
+    darktable
+    openconnect
+    networkmanager-openconnect
+    headsetcontrol
+    signal-desktop
+    freecad
+    android-tools
+    unityhub #broken often
+    arduino
+    cameractrls-gtk4
+  ];
+
+  # Install firefox.
+  programs.firefox = {
+    enable = true;
+    preferences = {
+      "widget.use-xdg-desktop-portal.file-picker" = 1;
+    };
+  };
+
+  programs.virt-manager.enable = true;
+
+  programs.steam = {
+    enable = true;
+    gamescopeSession.enable = true;
+    #borked extest
+    #extest.enable = true;
+    #remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    #dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    #localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  };
+
+  # DESKTOP
+
+  programs.xwayland.enable = true;
+
+  # Configure keymap in X11
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+
+  # Enable the KDE Plasma Desktop Environment.
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.plasma-login-manager.enable = true;
   xdg = {
   portal = {
     enable = true;
@@ -25,18 +218,16 @@
   };
   };
 
-  services.speechd.enable = true;
-  services.ratbagd.enable = true; #binding g604 macros
-  #services.input-remapper.enable = true; #for fixing g604 scroll
-  #services.input-remapper.enableUdevRules = false; #borked
-  services.flatpak.enable = true; #just prism, unity, ee, blanket
-
-  services.scx = {
+  services.printing = {
     enable = true;
-    scheduler = "scx_lavd";
-    extraArgs = [
-      "--performance"
-    ];
+    drivers = [ pkgs.epson-escpr ];
+  };
+  services.printing.cups-pdf.enable = true;
+  #printer discovery
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    #openFirewall = true;
   };
 
   # Enable sound with pipewire.
@@ -64,11 +255,11 @@
               "block-source-volume"
             ];
           };
-          matches = [ # BROKEN CURRENTLY FUCKKKK
+          matches = [
             {
               #"application.process.binary" = "my-broken-app";
-              "application.process.binary" = "*firefox*";
-              "client.name" = "Firefox";
+              "application.process.binary" = "firefox";
+              #"client.name" = "Firefox";
             }
           ];
         }
@@ -91,150 +282,38 @@
     };
   };
 
-  ###
-  ### Other desktop stuff
-  ###
+  # MISC SERVICES
 
-  services.printing = {
-    enable = true;
-    drivers = [ pkgs.epson-escpr ];
-  };
-  services.printing.cups-pdf.enable = true;
+  services.pcscd.enable = true; #smart cards and stuff
 
-  #printer discovery
-  services.avahi = {
+  virtualisation.libvirtd = {
     enable = true;
-    nssmdns4 = true;
-    #openFirewall = true;
+    qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
   };
 
-  users.users.soup.extraGroups = [ "i2c" ];
-  hardware.i2c.enable = true;
-  hardware.keyboard.qmk.enable = true;
+  services.speechd.enable = true; #funne tts
 
-  hardware.bluetooth.enable = true; # enables support for Bluetooth
-  hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
-  hardware.bluetooth.settings = {
-    General = {
-      Experimental = true;
-      Enable = "Source,Sink,Media,Socket";
+  services.ratbagd.enable = true; #binding g604 macros
+  #services.input-remapper.enable = true; #for fixing g604 scroll
+  #services.input-remapper.enableUdevRules = false; #borked
+  services.flatpak.enable = true; #just prism, unity, ee, blanket
+
+  virtualisation.docker = {
+    # Consider disabling the system wide Docker daemon
+    enable = false;
+
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+      # Optionally customize rootless Docker daemon settings
+      daemon.settings = {
+        #dns = [ "1.1.1.1" "8.8.8.8" ];
+        #registry-mirrors = [ "https://mirror.gcr.io" ];
+        firewall-backend = "iptables";
+        iptables = false;
+        ip6tables = false;
+      };
     };
   };
 
-  environment.systemPackages = with pkgs; [
-    # Desktop + laptop Utils
-    ddcutil
-    nvtopPackages.amd
-    libva-utils #video accel
-    clinfo #opencl
-
-    # Desktop + laptop Apps
-    #apps desktop/laptop
-    gimp3
-    jetbrains.pycharm-oss
-    vscode.fhs
-    git-cola
-    helix
-    godot3-mono
-    android-tools
-    godot-mono
-    gpu-screen-recorder-gtk
-    #input-remapper
-    protonup-qt
-    dolphin-emu
-    yt-dlp
-    libreoffice-qt-fresh
-    mediawriter
-    pied
-    piper-tts
-    alsa-utils
-    pinentry-qt #gpg
-    piper
-    mpv
-    kdePackages.partitionmanager
-    kdePackages.kgpg
-    kdePackages.plasma5support
-    kdePackages.kate
-    kdePackages.plasma-vault
-    kdePackages.kdenlive
-    kdePackages.filelight
-    kdePackages.kcoreaddons
-    kdePackages.krdc
-    kdiskmark
-    darktable
-    openconnect
-    headsetcontrol
-    tesseract
-    signal-desktop
-    (kdePackages.spectacle.override {
-      tesseractLanguages = [ "all" ];
-    })
-
-    unityhub #broken often
-    xar #specific to unity
-  ];
-
-  # Install firefox.
-  programs.firefox = {
-    enable = true;
-    preferences = {
-      "widget.use-xdg-desktop-portal.file-picker" = 1;
-    };
-  };
-
-  programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };
-
-  programs.steam = {
-    enable = true;
-    gamescopeSession.enable = true;
-    extest.enable = true;
-    #remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    #dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    #localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
-  };
-
-  #virt filesystem stuff if you need it
-  services.gvfs.enable = true;
-
-  #brightness control
-  services.udev.packages = [pkgs.ddcutil]; #i2c
-
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  #services.xserver.enable = true;
-  programs.xwayland.enable = true;
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
-  #fixes some disgusting bugs with mounting the M drive
-system.activationScripts.symlink-requestkey = ''
-      if [ ! -d /sbin ]; then
-        mkdir /sbin
-      fi
-      ln -sfn /run/current-system/sw/bin/request-key /sbin/request-key
-    '';
-    # request-key expects a configuration file under /etc
-    environment.etc."request-key.conf" = {
-      text = let
-        upcall = "${pkgs.cifs-utils}/bin/cifs.upcall";
-        keyctl = "${pkgs.keyutils}/bin/keyctl";
-      in ''
-        #OP     TYPE          DESCRIPTION  CALLOUT_INFO  PROGRAM
-        # -t is required for DFS share servers...
-        create  cifs.spnego   *            *             ${upcall} -t %k
-        create  dns_resolver  *            *             ${upcall} %k
-        # Everything below this point is essentially the default configuration,
-        # modified minimally to work under NixOS. Notably, it provides debug
-        # logging.
-        create  user          debug:*      negate        ${keyctl} negate %k 30 %S
-        create  user          debug:*      rejected      ${keyctl} reject %k 30 %c %S
-        create  user          debug:*      expired       ${keyctl} reject %k 30 %c %S
-        create  user          debug:*      revoked       ${keyctl} reject %k 30 %c %S
-        create  user          debug:loop:* *             |${pkgs.coreutils}/bin/cat
-        create  user          debug:*      *             ${pkgs.keyutils}/share/keyutils/request-key-debug.sh %k %d %c %S
-        negate  *             *            *             ${keyctl} negate %k 30 %S
-      '';
-    };
 }

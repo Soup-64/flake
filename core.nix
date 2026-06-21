@@ -1,26 +1,31 @@
 { config, lib, pkgs, inputs, ... }:
 {
-  # Common set of apps and settings
+  # Common between all machines
 
-  ###
-  ### NIX SETTINGS
-  ###
+  # NIX SETTINGS
+
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nix.settings.auto-optimise-store = true;
-  nixpkgs.config = {
-    allowUnfree = true;
-    rocmSupport = true;
-  };
   nix.gc = {
     automatic = true;
     dates = "daily";
     options = "--delete-older-than 5d";
   };
-  services.envfs.enable = true;
+  nix.settings.auto-optimise-store = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    #rocmSupport = true;
+  };
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
       fontconfig
+      stdenv.cc.cc.lib # needed for pylance
+      zlib             #
+      openssl          # extension downloads
+      curl
+      glib
+      util-linux       #
       ## Put here any library that is required when running a package
       ## ...
       ## Uncomment if you want to use the libraries provided by default in the steam distribution
@@ -29,21 +34,23 @@
       # (pkgs.runCommand "steamrun-lib" {} "mkdir $out; ln -s ${pkgs.steam-run.fhsenv}/usr/lib64 $out/lib")
     ];
   };
+  #fix programs that do stuff like hardcode /bin/bash
+  services.envfs.enable = true;
+
+  # USERS
 
   users.users.soup = {
     isNormalUser = true;
     description = "Soup";
-    extraGroups = [ "networkmanager" "wheel" ]; # rootless docker only outside of Sienna
+    #missing groups do nothing on systems without them so they're just all here
+    extraGroups = [ "networkmanager" "docker" "beep" "wheel" "i2c" "libvirtd" "dialout" ];
     packages = with pkgs; [
       #stub
     ];
   };
 
-  ###
-  ### TIME/FONT STUFF
-  ###
+  # LOCALE
 
-  # Time/Locale
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
@@ -58,115 +65,36 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # Font stuff
-  fonts.fontconfig.subpixel.rgba = "rgb";
-  fonts.fontconfig.useEmbeddedBitmaps = true;
-  fonts.packages = with pkgs; [
-    terminus_font
-    terminus_font_ttf
-    courier-prime
-    inter
-    minecraftia
-    monocraft
-    corefonts
-    vista-fonts
-  ];
+  # SYSTEM STUFF
 
-  # Fix bitmapped fonts
-  fonts.fontconfig.localConf = ''
-    <?xml version="1.0"?>
-    <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
-    <fontconfig>
-      <description>Accept bitmap fonts</description>
-    <!-- Accept bitmap fonts -->
-    <selectfont>
-      <acceptfont>
-      <pattern>
-        <patelt name="outline"><bool>false</bool></patelt>
-      </pattern>
-      </acceptfont>
-    </selectfont>
-    </fontconfig>
-  '';
+  systemd.services.systemd-journal-flush.enable = true;
+  services.journald.extraConfig = "SystemMaxUse=2G";
 
-  ###
-  ### COMMON SYSTEM STUFF
-  ###
-  services.smartd.enable = true;
-  services.fwupd.enable = true;
+  environment.sessionVariables = {};
 
-  # Bootloader.
-  # boot.loader.systemd-boot.enable = true; #disable for SB
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.systemd-boot.memtest86.enable = true;
   boot.loader.systemd-boot.consoleMode = "max";
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.timeout = 0;
-  boot.kernelParams = [
-    "loglevel=3"
-  ];
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
+  services.fwupd.enable = true; #device firmware
 
-  # Fix vconsole race condition where loadkeys fails to find font since the FS isn't ready
+  # oops all AMD!
+  boot.kernelParams = [
+    "loglevel=3"
+    "amd_pstate=active"
+  ];
+
+  #fix vconsole race condition where loadkeys fails to find font since the FS isn't ready
   systemd.services.systemd-vconsole-setup = {
     unitConfig = {
       After = "local-fs.target";
     };
   };
-
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
-  boot.kernelModules = [
-    "ntsync"
-  ];
-  systemd.services.systemd-journal-flush.enable = true;
-  services.journald.extraConfig = "SystemMaxUse=2G";
-
-  environment.systemPackages = with pkgs; [
-    #common
-    cifs-utils
-    keyutils
-    wget
-    btop
-    dateutils
-    ffmpeg
-    gitFull
-    gh
-    imagemagick
-    nix-output-monitor
-    nixpkgs-review
-    usbutils
-    sbctl
-    killall
-    pciutils
-    samba
-    rar
-    file
-    lm_sensors
-    lld
-    zip
-    unzip
-    p7zip
-    networkmanager-openconnect
-    smartmontools
-    gvfs
-    conda
-  ];
-
-  programs.gnupg.agent = {
-   enable = true;
-   pinentryPackage = pkgs.pinentry-qt;
-   #pinentryFlavor = "qt"; #unsupported
-   #enableSSHSupport = true;
-  };
-
-  programs.virt-manager.enable = true;
-
-  ###
-  ### NETWORKING
-  ###
 
   # Enable networking
   networking.networkmanager.wifi.powersave = false;
@@ -179,22 +107,152 @@
   #  fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
   #  #dnsovertls = "true"; # MTU blocks DoT
   #};
+  #fix for qemu network bridging
+  networking.firewall.trustedInterfaces = [ "virbr0" "wlp3s0" ];
 
-#  services.doh-server.enable = true;
-#  services.doh-server.settings.upstream = [ "udp:1.1.1.1:53" ];
-#  services.doh-server.settings.listen = ["127.0.0.1:8053"];
-#  services.doh-server.settings.verbose = true;
+  #virt filesystem stuff if you need it
+  services.gvfs.enable = true;
 
-  virtualisation.docker = {
-    rootless.enable = true;
-    rootless = {
-      enable = true;
-      setSocketVariable = true;
+  # SOFTWARE
+
+  environment.systemPackages = with pkgs; [
+    cifs-utils
+    jq
+    keyutils
+    samba
+    wget
+    pciutils
+    clinfo #opencl
+    dateutils
+    ffmpeg
+    imagemagick
+    nixpkgs-review
+    gitFull
+    gh
+    nix-output-monitor
+    piper-tts
+    #(callPackage ./piper-tts.nix {}) #manual build from commit
+    lm_sensors
+    helix
+    conda
+    lld
+    zip
+    unzip
+    xar
+    p7zip
+    rar
+    file
+    gvfs
+    beep
+    smartmontools
+    net-tools
+    traceroute
+    libva-utils #video accel
+  ];
+
+  programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };
+
+  # SERVICES AND STUFF
+
+  networking.firewall.backend = "firewalld";
+  networking.nftables.enable = true;
+  services.firewalld = {
+    enable = true;
+    #package = pkgs.firewalld-gui;
+    settings.DefaultZone = "public";
+    zones = {
+    docker = {
+      target = "DROP";
+      sources = [
+        { address = "172.17.0.1/16"; }
+      ];
+      interfaces = [
+        "docker0"
+      ];
+      ports = [
+        #{port = 11434; protocol = "tcp"; } #ollama
+        #{port = 8032; protocol = "tcp"; }  #flask
+        #{port = 8080; protocol = "tcp"; }  #website/rust backend
+      ];
     };
-    daemon.settings = {
-      firewall-backend = "iptables";
-      iptables = false;
-      ip6tables = false;
+    techlist = {
+      target = "DROP";
+      sources = [
+        { address = "141.219.0.0/16"; }
+      ];
+      forward = true;
+      protocols = [
+        "icmp"
+      ];
+      services = [
+#         "ssh"
+#         "rdp"
+        "dhcpv6-client"
+      ];
+      ports = [
+#         {port = 9269; protocol = "tcp"; }  #vanilla/chuds
+#         {port = 8080; protocol = "tcp"; }  #map
+#         {port = 9267; protocol = "tcp"; }  #wifeyland/modded
+#         {port = 3389; protocol = "tcp"; }  #rdp
+      ];
+    };
+    public = {
+      forward = true;
+      services = [
+        #"ssh"
+        "dhcpv6-client"
+      ];
+      ports = [
+#         {port = 9269; protocol = "tcp"; }  #vanilla/chuds
+#         {port = 8080; protocol = "tcp"; }  #map
+#         {port = 9267; protocol = "tcp"; }  #wifeyland/modded
+        #{port = 8032; protocol = "tcp"; }  #flask
+        #{port = 8080; protocol = "tcp"; }  #website/ rust backend
+      ];
     };
   };
+  };
+
+  programs.gnupg.agent = {
+   enable = true;
+   #pinentryPackage = pkgs.pinentry-qt;
+   #pinentryFlavor = "qt"; #unsupported
+   #enableSSHSupport = true;
+  };
+
+  #drive SMART reporting
+  services.smartd = {
+      enable = true;
+  };
+
+
+#fixes some disgusting bugs with mounting the M drive
+system.activationScripts.symlink-requestkey = ''
+      if [ ! -d /sbin ]; then
+        mkdir /sbin
+      fi
+      ln -sfn /run/current-system/sw/bin/request-key /sbin/request-key
+    '';
+    # request-key expects a configuration file under /etc
+    environment.etc."request-key.conf" = {
+      text = let
+        upcall = "${pkgs.cifs-utils}/bin/cifs.upcall";
+        keyctl = "${pkgs.keyutils}/bin/keyctl";
+      in ''
+        #OP     TYPE          DESCRIPTION  CALLOUT_INFO  PROGRAM
+        # -t is required for DFS share servers...
+        create  cifs.spnego   *            *             ${upcall} -t %k
+        create  dns_resolver  *            *             ${upcall} %k
+        # Everything below this point is essentially the default configuration,
+        # modified minimally to work under NixOS. Notably, it provides debug
+        # logging.
+        create  user          debug:*      negate        ${keyctl} negate %k 30 %S
+        create  user          debug:*      rejected      ${keyctl} reject %k 30 %c %S
+        create  user          debug:*      expired       ${keyctl} reject %k 30 %c %S
+        create  user          debug:*      revoked       ${keyctl} reject %k 30 %c %S
+        create  user          debug:loop:* *             |${pkgs.coreutils}/bin/cat
+        create  user          debug:*      *             ${pkgs.keyutils}/share/keyutils/request-key-debug.sh %k %d %c %S
+        negate  *             *            *             ${keyctl} negate %k 30 %S
+      '';
+    };
 }
