@@ -58,7 +58,6 @@
   };
 
   #desktops support desktop things like ntsync and desktop-y kernels
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   boot.kernelModules = [
     "ntsync"
   ];
@@ -122,7 +121,6 @@
     godot-mono
     gimp3
     dolphin-emu
-    yt-dlp
     libreoffice-qt-fresh
     mediawriter
     pied

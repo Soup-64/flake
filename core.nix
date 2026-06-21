@@ -26,11 +26,8 @@
       curl
       glib
       util-linux       #
-      ## Put here any library that is required when running a package
-      ## ...
-      ## Uncomment if you want to use the libraries provided by default in the steam distribution
-      ## but this is quite far from being exhaustive
-      ## https://github.com/NixOS/nixpkgs/issues/354513
+      # Put here any library that is required when running a package
+      # uncomment for all of steam-run
       # (pkgs.runCommand "steamrun-lib" {} "mkdir $out; ln -s ${pkgs.steam-run.fhsenv}/usr/lib64 $out/lib")
     ];
   };
@@ -83,6 +80,7 @@
   };
   services.fwupd.enable = true; #device firmware
 
+  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   # oops all AMD!
   boot.kernelParams = [
     "loglevel=3"
@@ -127,7 +125,9 @@
     ffmpeg
     imagemagick
     nixpkgs-review
+    nixfmt
     gitFull
+    git-lfs
     gh
     nix-output-monitor
     piper-tts
@@ -149,6 +149,10 @@
     traceroute
     libva-utils #video accel
     vim
+    fwupd-efi
+    killall
+    usbutils
+    yt-dlp
   ];
 
   programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };
@@ -159,7 +163,6 @@
   networking.nftables.enable = true;
   services.firewalld = {
     enable = true;
-    #package = pkgs.firewalld-gui;
     settings.DefaultZone = "public";
     zones = {
     docker = {
@@ -170,11 +173,7 @@
       interfaces = [
         "docker0"
       ];
-      ports = [
-        #{port = 11434; protocol = "tcp"; } #ollama
-        #{port = 8032; protocol = "tcp"; }  #flask
-        #{port = 8080; protocol = "tcp"; }  #website/rust backend
-      ];
+      ports = [];
     };
     techlist = {
       target = "DROP";
@@ -186,30 +185,16 @@
         "icmp"
       ];
       services = [
-#         "ssh"
-#         "rdp"
         "dhcpv6-client"
       ];
-      ports = [
-#         {port = 9269; protocol = "tcp"; }  #vanilla/chuds
-#         {port = 8080; protocol = "tcp"; }  #map
-#         {port = 9267; protocol = "tcp"; }  #wifeyland/modded
-#         {port = 3389; protocol = "tcp"; }  #rdp
-      ];
+      ports = [];
     };
     public = {
       forward = true;
       services = [
-        #"ssh"
         "dhcpv6-client"
       ];
-      ports = [
-#         {port = 9269; protocol = "tcp"; }  #vanilla/chuds
-#         {port = 8080; protocol = "tcp"; }  #map
-#         {port = 9267; protocol = "tcp"; }  #wifeyland/modded
-        #{port = 8032; protocol = "tcp"; }  #flask
-        #{port = 8080; protocol = "tcp"; }  #website/ rust backend
-      ];
+      ports = [];
     };
   };
   };
@@ -224,6 +209,7 @@
   #drive SMART reporting
   services.smartd = {
       enable = true;
+      autodetect = false;
   };
 
 
