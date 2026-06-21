@@ -113,9 +113,6 @@
     protonup-qt
     #input-remapper
     git-cola
-    btop
-    usbutils
-    killall
     nvtopPackages.amd
     godot3-mono
     godot-mono
@@ -153,7 +150,6 @@
     kdePackages.libkdcraw
     libraw
     tesseract
-    sbctl
     (discord-canary.override {
       withOpenASAR = true;
       withVencord = true;

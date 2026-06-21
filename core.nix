@@ -136,6 +136,7 @@
     helix
     conda
     lld
+    btop
     zip
     unzip
     xar
@@ -151,6 +152,7 @@
     vim
     fwupd-efi
     killall
+    sbctl
     usbutils
     yt-dlp
   ];
