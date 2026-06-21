@@ -148,6 +148,7 @@
     net-tools
     traceroute
     libva-utils #video accel
+    vim
   ];
 
   programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };
