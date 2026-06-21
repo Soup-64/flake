@@ -2,8 +2,9 @@
 {
   imports = [
     ../core.nix
+    ../desktop.nix
     ./hardware-configuration.nix
-    inputs.lanzaboote.nixosModules.lanzaboote-stable
+    inputs.lanzaboote.nixosModules.lanzaboote
   ];
 
   # NIX SETTINGS

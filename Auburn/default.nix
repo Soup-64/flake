@@ -2,6 +2,7 @@
 {
   imports = [
     ../core.nix
+    ../desktop.nix
     ./hardware-configuration.nix
     ./ratoverlay.nix
     inputs.lanzaboote.nixosModules.lanzaboote

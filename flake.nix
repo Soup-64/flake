@@ -1,5 +1,5 @@
 {
-  inputs = { 
+  inputs = {
     nixpkgs.url = github:NixOS/nixpkgs/nixos-unstable;
     lanzaboote = {
       url = "github:nix-community/lanzaboote/001e560fffc8f0235e9db20ebeb4ccde0ade1caf";
@@ -12,7 +12,7 @@
     lanzaboote-stable = {
       url = "github:nix-community/lanzaboote/001e560fffc8f0235e9db20ebeb4ccde0ade1caf";
       # Optional but recommended to limit the size of your system closure
-      inputs = { nixpkgs-stable.follows = "nixpkgs"; };
+      inputs = { nixpkgs.follows = "nixpkgs-stable"; };
     };
   };
   outputs = { self, nixpkgs, nixpkgs-stable, ... }@inputs: {
