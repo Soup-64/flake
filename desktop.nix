@@ -124,7 +124,7 @@
     alsa-utils
     pinentry-qt #gpg
     ddcutil
-    piper
+    # piper # very broken as of 6/21/2026
     mpv
     mangohud
     goverlay
@@ -171,6 +171,11 @@
 
     openxr-loader
   ];
+
+  environment.shellAliases = {
+    # set new name aliasing old name.
+    piper-mouse = lib.getExe pkgs.piper;
+  };
 
   # godot needed
   nixpkgs.config.android_sdk.accept_license = true;
