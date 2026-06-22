@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [
     ../core.nix
@@ -41,7 +47,7 @@
   boot.kernelParams = [
     "video=DP-2:2560x1440@60"
     "pcie_aspm=off" # more attempts at stabilizing network
-    "pcie_port_pm=off" #hotswap incompat
+    "pcie_port_pm=off" # hotswap incompat
   ];
 
   # SERVICES
@@ -65,23 +71,29 @@
   services.displayManager.ly.enable = true;
   services.displayManager.defaultSession = "xfce";
 
-  fileSystems."/mnt/beta" =
-    { device = "/dev/disk/by-label/beta";
-      fsType = "ext4";
-      options =  [ "auto" "nofail" ];
-    };
-  fileSystems."/mnt/mallow" =
-    { device = "/dev/disk/by-label/Mallow";
-      fsType = "ext4";
-      options =  [ "auto" "nofail" ];
-    };
+  fileSystems."/mnt/beta" = {
+    device = "/dev/disk/by-label/beta";
+    fsType = "ext4";
+    options = [
+      "auto"
+      "nofail"
+    ];
+  };
+  fileSystems."/mnt/mallow" = {
+    device = "/dev/disk/by-label/Mallow";
+    fsType = "ext4";
+    options = [
+      "auto"
+      "nofail"
+    ];
+  };
 
   services.smartd = {
-      devices = [
-        { device = "/dev/disk/by-id/ata-KINGSTON_SA400S37240G_50026B7783D03CB8"; } #beta
-        { device = "/dev/disk/by-id/nvme-KBG40ZNS256G_NVMe_KIOXIA_256GB_Z97PCCI9PTLL"; } #root
-        #{ device = "/dev/disk/by-id/usb-JMicron_Generic_0123456789ABCDEF-0:0"; } #mallow
-      ];
+    devices = [
+      { device = "/dev/disk/by-id/ata-KINGSTON_SA400S37240G_50026B7783D03CB8"; } # beta
+      { device = "/dev/disk/by-id/nvme-KBG40ZNS256G_NVMe_KIOXIA_256GB_Z97PCCI9PTLL"; } # root
+      #{ device = "/dev/disk/by-id/usb-JMicron_Generic_0123456789ABCDEF-0:0"; } #mallow
+    ];
   };
 
   # Enable the OpenSSH daemon.
@@ -95,30 +107,51 @@
 
   services.firewalld = {
     zones = {
-    techlist = {
-      services = [
-        "ssh"
-        "rdp"
-      ];
-      ports = [
-        {port = 9269; protocol = "tcp"; }  #vanilla/chuds
-        {port = 8080; protocol = "tcp"; }  #map
-        {port = 9267; protocol = "tcp"; }  #wifeyland/modded
-        {port = 3389; protocol = "tcp"; }  #rdp
-      ];
+      techlist = {
+        services = [
+          "ssh"
+          "rdp"
+        ];
+        ports = [
+          {
+            port = 9269;
+            protocol = "tcp";
+          } # vanilla/chuds
+          {
+            port = 8080;
+            protocol = "tcp";
+          } # map
+          {
+            port = 9267;
+            protocol = "tcp";
+          } # wifeyland/modded
+          {
+            port = 3389;
+            protocol = "tcp";
+          } # rdp
+        ];
+      };
+      public = {
+        forward = true;
+        services = [
+          #"ssh"
+        ];
+        ports = [
+          {
+            port = 9269;
+            protocol = "tcp";
+          } # vanilla/chuds
+          {
+            port = 8080;
+            protocol = "tcp";
+          } # map
+          {
+            port = 9267;
+            protocol = "tcp";
+          } # wifeyland/modded
+        ];
+      };
     };
-    public = {
-      forward = true;
-      services = [
-        #"ssh"
-      ];
-      ports = [
-        {port = 9269; protocol = "tcp"; }  #vanilla/chuds
-        {port = 8080; protocol = "tcp"; }  #map
-        {port = 9267; protocol = "tcp"; }  #wifeyland/modded
-      ];
-    };
-  };
   };
 
   virtualisation.docker = {
@@ -130,6 +163,5 @@
       ip6tables = false;
     };
   };
-
 
 }

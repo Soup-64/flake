@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   # Common to machines with head
 
@@ -6,7 +12,7 @@
   # ROCM is disabled because I am so tired of it breaking literally every nix unstable update
 
   #brightness control
-  services.udev.packages = [pkgs.ddcutil];
+  services.udev.packages = [ pkgs.ddcutil ];
 
   hardware.i2c.enable = true;
   hardware.keyboard.qmk.enable = true;
@@ -15,7 +21,7 @@
     NIXOS_OZONE_WL = "1";
     GTK_USE_PORTAL = "1";
     PINENTRY_KDE_USE_WALLET = "1";
-    FREETYPE_PROPERTIES="cff:no-stem-darkening=0 autofitter:no-stem-darkening=0";
+    FREETYPE_PROPERTIES = "cff:no-stem-darkening=0 autofitter:no-stem-darkening=0";
     #KWIN_USE_OVERLAYS = "1";
   };
 
@@ -34,14 +40,14 @@
   #  #"L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
   #  "L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware"
   #];
-# smash if rocm/clr is fucked, needed for QEMU
-  systemd.tmpfiles.rules = ["L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware"];
+  # smash if rocm/clr is fucked, needed for QEMU
+  systemd.tmpfiles.rules = [ "L+ /var/lib/qemu/firmware - - - - ${pkgs.qemu}/share/qemu/firmware" ];
 
   hardware.graphics = {
-  enable = true;
-  #package = pkgs.mesa;
-  enable32Bit = true;
-   extraPackages = with pkgs; [
+    enable = true;
+    #package = pkgs.mesa;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
       libva-utils
       #rocmPackages.clr.icd
     ];
@@ -66,7 +72,7 @@
     enable = true;
     scheduler = "scx_lavd";
     extraArgs = [
-      "--performance" #lavd thing
+      "--performance" # lavd thing
     ];
   };
 
@@ -105,8 +111,8 @@
   # SOFTWARE
 
   environment.systemPackages = with pkgs; [
-    xauth #SSH -Y
-    blender #clr/rocm is broken sometimes
+    xauth # SSH -Y
+    blender # clr/rocm is broken sometimes
     #zluda  #amd cuda, I guess
     gpu-screen-recorder-gtk
     vscode.fhs
@@ -122,7 +128,7 @@
     mediawriter
     pied
     alsa-utils
-    pinentry-qt #gpg
+    pinentry-qt # gpg
     ddcutil
     # piper # very broken as of 6/21/2026
     mpv
@@ -165,7 +171,7 @@
     signal-desktop
     freecad
     android-tools
-    unityhub #broken often
+    unityhub # broken often
     arduino
     cameractrls-gtk4
 
@@ -214,13 +220,13 @@
   services.desktopManager.plasma6.enable = true;
   services.displayManager.plasma-login-manager.enable = true;
   xdg = {
-  portal = {
-    enable = true;
-    extraPortals = with pkgs; [
-      kdePackages.xdg-desktop-portal-kde
-      xdg-desktop-portal-gtk
-    ];
-  };
+    portal = {
+      enable = true;
+      extraPortals = with pkgs; [
+        kdePackages.xdg-desktop-portal-kde
+        xdg-desktop-portal-gtk
+      ];
+    };
   };
 
   services.printing = {
@@ -251,7 +257,7 @@
     #media-session.enable = true;
   };
   services.pipewire.extraConfig.pipewire = {
-  "15-force-s16-info" = {
+    "15-force-s16-info" = {
       "stream.rules" = [
         {
           actions = {
@@ -272,9 +278,9 @@
     };
     "98-crackling-fix" = {
       "context.properties" = {
-        "link.max-buffers"          = 128;
-        "default.clock.rate"        = 48000;
-        "default.clock.quantum"     = 512;
+        "link.max-buffers" = 128;
+        "default.clock.rate" = 48000;
+        "default.clock.quantum" = 512;
         "default.clock.min-quantum" = 512;
         "default.clock.max-quantum" = 2048;
       };
@@ -295,19 +301,19 @@
     #autoStart = true;
   };
 
-  services.pcscd.enable = true; #smart cards and stuff
+  services.pcscd.enable = true; # smart cards and stuff
 
   virtualisation.libvirtd = {
     enable = true;
     qemu.vhostUserPackages = with pkgs; [ virtiofsd ];
   };
 
-  services.speechd.enable = true; #funne tts
+  services.speechd.enable = true; # funne tts
 
-  services.ratbagd.enable = true; #binding g604 macros
+  services.ratbagd.enable = true; # binding g604 macros
   #services.input-remapper.enable = true; #for fixing g604 scroll
   #services.input-remapper.enableUdevRules = false; #borked
-  services.flatpak.enable = true; #just prism, unity, ee, blanket
+  services.flatpak.enable = true; # just prism, unity, ee, blanket
 
   virtualisation.docker = {
     # Consider disabling the system wide Docker daemon

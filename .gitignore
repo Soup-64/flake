@@ -9,3 +9,4 @@ result-*
 **/.nixos-test-history
 *-build
 diff.txt
+.vscode

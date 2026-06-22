@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   imports = [
     ../core.nix
@@ -14,15 +20,17 @@
 
   # HARDWARE
 
-  swapDevices = [ {
-    device = "/var/lib/swapfile";
-    size = 4*1024;
-  } ];
+  swapDevices = [
+    {
+      device = "/var/lib/swapfile";
+      size = 4 * 1024;
+    }
+  ];
 
   services.smartd = {
-      devices = [
-        { device = "/dev/disk/by-id/nvme-UMIS_RPETJ512MMW1MDQ_SS1D71551X1RC5664AVV"; }
-      ];
+    devices = [
+      { device = "/dev/disk/by-id/nvme-UMIS_RPETJ512MMW1MDQ_SS1D71551X1RC5664AVV"; }
+    ];
   };
 
 }

@@ -1,11 +1,19 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 {
   # Common between all machines
 
   # NIX SETTINGS
 
-
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
   nix.gc = {
     automatic = true;
     dates = "daily";
@@ -21,11 +29,11 @@
     libraries = with pkgs; [
       fontconfig
       stdenv.cc.cc.lib # needed for pylance
-      zlib             #
-      openssl          # extension downloads
+      zlib
+      openssl # extension downloads
       curl
       glib
-      util-linux       #
+      util-linux
       # Put here any library that is required when running a package
       # uncomment for all of steam-run
       # (pkgs.runCommand "steamrun-lib" {} "mkdir $out; ln -s ${pkgs.steam-run.fhsenv}/usr/lib64 $out/lib")
@@ -40,7 +48,15 @@
     isNormalUser = true;
     description = "Soup";
     #missing groups do nothing on systems without them so they're just all here
-    extraGroups = [ "networkmanager" "docker" "beep" "wheel" "i2c" "libvirtd" "dialout" ];
+    extraGroups = [
+      "networkmanager"
+      "docker"
+      "beep"
+      "wheel"
+      "i2c"
+      "libvirtd"
+      "dialout"
+    ];
     packages = with pkgs; [
       #stub
     ];
@@ -67,7 +83,7 @@
   systemd.services.systemd-journal-flush.enable = true;
   services.journald.extraConfig = "SystemMaxUse=2G";
 
-  environment.sessionVariables = {};
+  environment.sessionVariables = { };
 
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.systemd-boot.memtest86.enable = true;
@@ -78,7 +94,7 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  services.fwupd.enable = true; #device firmware
+  services.fwupd.enable = true; # device firmware
 
   boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
   # oops all AMD!
@@ -97,7 +113,7 @@
   # Enable networking
   networking.networkmanager.wifi.powersave = false;
   networking.networkmanager.enable = true;
-  
+
   #networking.nameservers = [ "1.1.1.1" "1.0.0.1" "141.219.100.30" ]; # may break MTU VPN services
   #services.resolved = {
   #  enable = true;
@@ -108,7 +124,10 @@
   #  };
   #};
 
-  networking.firewall.trustedInterfaces = [ "virbr0" "wlp3s0" ];
+  networking.firewall.trustedInterfaces = [
+    "virbr0"
+    "wlp3s0"
+  ];
 
   #virt filesystem stuff if you need it
   services.gvfs.enable = true;
@@ -123,7 +142,7 @@
     samba
     wget
     pciutils
-    clinfo #opencl
+    clinfo # opencl
     dateutils
     ffmpeg
     imagemagick
@@ -151,7 +170,7 @@
     smartmontools
     net-tools
     traceroute
-    libva-utils #video accel
+    libva-utils # video accel
     vim
     fwupd-efi
     killall
@@ -161,7 +180,10 @@
     rclone
   ];
 
-  programs.java = { enable = true; package = pkgs.temurin-jre-bin-11; };
+  programs.java = {
+    enable = true;
+    package = pkgs.temurin-jre-bin-11;
+  };
 
   # SERVICES AND STUFF
 
@@ -171,67 +193,68 @@
     enable = true;
     settings.DefaultZone = "public";
     zones = {
-    docker = {
-      target = "DROP";
-      sources = [
-        { address = "172.17.0.1/16"; }
-      ];
-      interfaces = [
-        "docker0"
-      ];
-      ports = [];
+      docker = {
+        target = "DROP";
+        sources = [
+          { address = "172.17.0.1/16"; }
+        ];
+        interfaces = [
+          "docker0"
+        ];
+        ports = [ ];
+      };
+      techlist = {
+        target = "DROP";
+        sources = [
+          { address = "141.219.0.0/16"; }
+        ];
+        forward = true;
+        protocols = [
+          "icmp"
+        ];
+        services = [
+          "dhcpv6-client"
+        ];
+        ports = [ ];
+      };
+      public = {
+        forward = true;
+        services = [
+          "dhcpv6-client"
+        ];
+        ports = [ ];
+      };
     };
-    techlist = {
-      target = "DROP";
-      sources = [
-        { address = "141.219.0.0/16"; }
-      ];
-      forward = true;
-      protocols = [
-        "icmp"
-      ];
-      services = [
-        "dhcpv6-client"
-      ];
-      ports = [];
-    };
-    public = {
-      forward = true;
-      services = [
-        "dhcpv6-client"
-      ];
-      ports = [];
-    };
-  };
   };
 
   programs.gnupg.agent = {
-   enable = true;
-   #pinentryPackage = pkgs.pinentry-qt;
-   #pinentryFlavor = "qt"; #unsupported
-   #enableSSHSupport = true;
+    enable = true;
+    #pinentryPackage = pkgs.pinentry-qt;
+    #pinentryFlavor = "qt"; #unsupported
+    #enableSSHSupport = true;
   };
 
   #drive SMART reporting
   services.smartd = {
-      enable = true;
-      autodetect = false;
+    enable = true;
+    autodetect = false;
   };
 
-
-#fixes some disgusting bugs with mounting the M drive
-system.activationScripts.symlink-requestkey = ''
-      if [ ! -d /sbin ]; then
-        mkdir /sbin
-      fi
-      ln -sfn /run/current-system/sw/bin/request-key /sbin/request-key
-    '';
-    # request-key expects a configuration file under /etc
-    environment.etc."request-key.conf" = {
-      text = let
+  #fixes some disgusting bugs with mounting the M drive
+  system.activationScripts.symlink-requestkey = ''
+    if [ ! -d /sbin ]; then
+      mkdir /sbin
+    fi
+    ln -sfn /run/current-system/sw/bin/request-key /sbin/request-key
+  '';
+  # request-key expects a configuration file under /etc
+  environment.etc."request-key.conf" = {
+    text =
+      let
         upcall = "${pkgs.cifs-utils}/bin/cifs.upcall";
         keyctl = "${pkgs.keyutils}/bin/keyctl";
-      in ''
+      in
+      ''
         #OP     TYPE          DESCRIPTION  CALLOUT_INFO  PROGRAM
         # -t is required for DFS share servers...
         create  cifs.spnego   *            *             ${upcall} -t %k
@@ -247,5 +270,5 @@ system.activationScripts.symlink-requestkey = ''
         create  user          debug:*      *             ${pkgs.keyutils}/share/keyutils/request-key-debug.sh %k %d %c %S
         negate  *             *            *             ${keyctl} negate %k 30 %S
       '';
-    };
+  };
 }
