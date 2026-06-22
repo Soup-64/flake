@@ -178,10 +178,10 @@
     openxr-loader
   ];
 
-  environment.shellAliases = {
-    # set new name aliasing old name.
-    piper-mouse = lib.getExe pkgs.piper;
-  };
+ # environment.shellAliases = {
+ #   # set new name aliasing old name.
+ #   piper-mouse = lib.getExe pkgs.piper;
+ # };
 
   # godot needed
   nixpkgs.config.android_sdk.accept_license = true;
