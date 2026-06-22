@@ -310,7 +310,16 @@
 
   services.speechd.enable = true; # funne tts
 
-  services.ratbagd.enable = true; # binding g604 macros
+  services.ratbagd = {
+    enable = true;
+    package = pkgs.libratbag.overrideAttrs (old: {
+      src = old.src.override {
+        tag = null;
+        rev = "38af81ca649f113df80d102ccdd7f262ed7d4124";
+        hash = "sha256-ZMEdePA8ZSR/r5Yyd0TlWHZO9rIVxmGlgBX6rssVJy0=";
+      };
+    });
+  }; # binding g604 macros
   #services.input-remapper.enable = true; #for fixing g604 scroll
   #services.input-remapper.enableUdevRules = false; #borked
   services.flatpak.enable = true; # just prism, unity, ee, blanket
