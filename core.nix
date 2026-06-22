@@ -98,15 +98,15 @@
   networking.networkmanager.wifi.powersave = false;
   networking.networkmanager.enable = true;
   
-  networking.nameservers = [ "1.1.1.1" "1.0.0.1" "141.219.100.30" ]; # may break MTU VPN services
-  services.resolved = {
-    enable = true;
-    settings.Resolve = {
-    DNSSEC = "true";
-    Domains = [ "~." ];
-    #DNSoverTLS = "true"; # MTU blocks DoT
-    };
-  };
+  #networking.nameservers = [ "1.1.1.1" "1.0.0.1" "141.219.100.30" ]; # may break MTU VPN services
+  #services.resolved = {
+  #  enable = true;
+  #  settings.Resolve = {
+  #  DNSSEC = "true";
+  #  Domains = [ "~." ];
+  #  #DNSoverTLS = "true"; # MTU blocks DoT
+  #  };
+  #};
 
   networking.firewall.trustedInterfaces = [ "virbr0" "wlp3s0" ];
 
