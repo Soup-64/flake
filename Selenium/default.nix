@@ -33,4 +33,9 @@
     ];
   };
 
+  # GOF5
+
+  environment.systemPackages = with pkgs; [
+#   gof5
+  ];
 }

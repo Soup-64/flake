@@ -165,8 +165,9 @@
     jetbrains.pycharm-oss
     #jetbrains.clion
     darktable
-    openconnect
-    networkmanager-openconnect
+    gof5
+    #openconnect
+    #networkmanager-openconnect
     headsetcontrol
     signal-desktop
     freecad
