@@ -157,7 +157,7 @@
     kdePackages.libkdcraw
     libraw
     tesseract
-    (discord-canary.override {
+    (discord.override {
       withOpenASAR = true;
       withVencord = true;
     })
