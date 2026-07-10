@@ -170,7 +170,7 @@
     #networkmanager-openconnect
     headsetcontrol
     signal-desktop
-    freecad
+    #freecad #Broken
     android-tools
     unityhub # broken often
     arduino
