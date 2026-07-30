@@ -111,6 +111,8 @@
   # SOFTWARE
 
   environment.systemPackages = with pkgs; [
+    wineWow64Packages.staging
+    winetricks
     xauth # SSH -Y
     blender # clr/rocm is broken sometimes
     #zluda  #amd cuda, I guess
@@ -157,12 +159,12 @@
     kdePackages.libkdcraw
     libraw
     tesseract
-    (discord.override {
-      withOpenASAR = true;
+    (discord-canary.override {
+      withOpenASAR = false;
       withVencord = true;
     })
     #vesktop
-    jetbrains.pycharm-oss
+    jetbrains.pycharm
     #jetbrains.clion
     darktable
     gof5

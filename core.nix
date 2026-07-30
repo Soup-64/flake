@@ -135,6 +135,7 @@
   # SOFTWARE
 
   environment.systemPackages = with pkgs; [
+    tree
     cifs-utils
     jq
     keyutils
