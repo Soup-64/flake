@@ -70,9 +70,9 @@
 
   services.scx = {
     enable = true;
-    scheduler = "scx_lavd";
+    scheduler = "scx_bpfland";
     extraArgs = [
-      "--performance" # lavd thing
+      #"--performance" # lavd thing
     ];
   };
 
@@ -126,7 +126,7 @@
     godot-mono
     gimp3
     dolphin-emu
-    libreoffice-qt-fresh
+    libreoffice-qt-stable
     mediawriter
     pied
     alsa-utils

@@ -96,7 +96,7 @@
   };
   services.fwupd.enable = true; # device firmware
 
-  boot.kernelPackages = pkgs.linuxPackages_xanmod_latest;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   # oops all AMD!
   boot.kernelParams = [
     "loglevel=3"
