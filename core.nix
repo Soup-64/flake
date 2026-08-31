@@ -183,7 +183,7 @@
 
   programs.java = {
     enable = true;
-    package = pkgs.temurin-jre-bin-11;
+    package = pkgs.temurin-bin;
   };
 
   # SERVICES AND STUFF

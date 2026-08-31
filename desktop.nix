@@ -112,6 +112,8 @@
 
   environment.systemPackages = with pkgs; [
     wineWow64Packages.staging
+    jdt-language-server
+    roslyn-ls
     winetricks
     xauth # SSH -Y
     blender # clr/rocm is broken sometimes
@@ -159,7 +161,7 @@
     kdePackages.libkdcraw
     libraw
     tesseract
-    (discord-canary.override {
+    (discord.override {
       withOpenASAR = false;
       withVencord = true;
     })
