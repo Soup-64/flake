@@ -81,7 +81,9 @@
   # SYSTEM STUFF
 
   systemd.services.systemd-journal-flush.enable = true;
-  services.journald.extraConfig = "SystemMaxUse=2G";
+  services.journald.settings.Journal = {
+    SystemMaxUse = "2G";
+  };
 
   environment.sessionVariables = { };
 
