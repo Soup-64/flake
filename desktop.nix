@@ -93,6 +93,11 @@
       </pattern>
       </acceptfont>
     </selectfont>
+      <match target="font">
+        <edit name="embeddedbitmap" mode="assign">
+          <bool>false</bool>
+        </edit>
+      </match>
     </fontconfig>
   '';
 
@@ -121,6 +126,8 @@
     gpu-screen-recorder-gtk
     vscode.fhs
     protonup-qt
+    hfsprogs
+    hfsutils
     #input-remapper
     git-cola
     nvtopPackages.amd
