@@ -70,9 +70,11 @@
 
   services.scx = {
     enable = true;
-    scheduler = "scx_bpfland";
+    scheduler = "scx_lavd";
     extraArgs = [
-      #"--performance" # lavd thing
+      "--performance" # lavd thing
+      "--pinned-slice-us"
+      "500"
     ];
   };
 
