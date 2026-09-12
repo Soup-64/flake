@@ -39,12 +39,17 @@
     "pcspkr"
   ];
 
+  fileSystems."/" = {
+    options = [ "noatime" ];
+  };
+
   fileSystems."/mnt/backup" = {
     device = "/dev/disk/by-uuid/1ddcfd3d-735e-4b99-8b5a-117edb7b6d95";
     fsType = "ext4";
     options = [
       "auto"
       "nofail"
+      "noatime"
     ];
   };
 

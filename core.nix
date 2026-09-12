@@ -82,7 +82,8 @@
 
   systemd.services.systemd-journal-flush.enable = true;
   services.journald.settings.Journal = {
-    SystemMaxUse = "2G";
+    SystemMaxUse = "100M";
+    Storage = "volatile";
   };
 
   environment.sessionVariables = { };
