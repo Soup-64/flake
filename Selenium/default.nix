@@ -20,6 +20,10 @@
 
   # HARDWARE
 
+  fileSystems."/" = {
+    options = [ "noatime" ];
+  };
+
   swapDevices = [
     {
       device = "/var/lib/swapfile";
