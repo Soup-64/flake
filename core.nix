@@ -182,6 +182,8 @@
     usbutils
     yt-dlp
     rclone
+    fastfetch
+    hyfetch
   ];
 
   programs.java = {
