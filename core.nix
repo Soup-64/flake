@@ -160,6 +160,7 @@
     #(callPackage ./piper-tts.nix {}) #manual build from commit
     lm_sensors
     helix
+    kakoune
     conda
     lld
     btop

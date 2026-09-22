@@ -118,6 +118,7 @@
   # SOFTWARE
 
   environment.systemPackages = with pkgs; [
+    strawberry
     wineWow64Packages.staging
     jdt-language-server
     roslyn-ls
@@ -253,6 +254,28 @@
     enable = true;
     nssmdns4 = true;
     #openFirewall = true;
+  };
+
+  services.dnsproxy = {
+    enable = true;
+    settings = {
+      # Plain DNS upstream
+      upstream = [ "https://cloudflare-dns.com/dns-query" ];
+      bootstrap = [
+        "141.219.70.130"
+        "1.1.1.1" 
+        "1.0.0.1" 
+      ];
+
+      listen-addrs = [ "127.0.0.1" ];
+      listen-ports = [ 53 ];
+    };
+    # Additional launch flags
+    flags = [ ];
+  };
+  networking = {
+    nameservers = [ "127.0.0.1" ];
+    networkmanager.dns = "none";
   };
 
   # Enable sound with pipewire.
