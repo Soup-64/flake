@@ -117,15 +117,34 @@
   networking.networkmanager.wifi.powersave = false;
   networking.networkmanager.enable = true;
 
-  #networking.nameservers = [ "1.1.1.1" "1.0.0.1" "141.219.100.30" ]; # may break MTU VPN services
-  #services.resolved = {
-  #  enable = true;
-  #  settings.Resolve = {
-  #  DNSSEC = "true";
-  #  Domains = [ "~." ];
-  #  #DNSoverTLS = "true"; # MTU blocks DoT
-  #  };
-  #};
+  services.dnsproxy = {
+    enable = true;
+    settings = {
+      # Plain DNS upstream
+      upstream = [ "https://cloudflare-dns.com/dns-query" ];
+      bootstrap = [
+        "141.219.70.130"
+        "1.1.1.1" 
+        "1.0.0.1" 
+      ];
+
+      listen-addrs = [ "127.0.0.1" ];
+      listen-ports = [ 53 ];
+    };
+    # Additional launch flags
+    flags = [ ];
+  };
+
+  networking.nameservers = [ "127.0.0.1" ]; # may break MTU VPN services
+  services.resolved = {
+    enable = true;
+    settings.Resolve = {
+    DNSSEC = "true";
+    Domains = [ "~." ];
+    #DNSoverTLS = "true"; # MTU blocks DoT
+    FallbackDNS = [ ];
+    };
+  };
 
   networking.firewall.trustedInterfaces = [
     "virbr0"

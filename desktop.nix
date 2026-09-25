@@ -256,29 +256,8 @@
     #openFirewall = true;
   };
 
-  services.dnsproxy = {
-    enable = true;
-    settings = {
-      # Plain DNS upstream
-      upstream = [ "https://cloudflare-dns.com/dns-query" ];
-      bootstrap = [
-        "141.219.70.130"
-        "1.1.1.1" 
-        "1.0.0.1" 
-      ];
 
-      listen-addrs = [ "127.0.0.1" ];
-      listen-ports = [ 53 ];
-    };
-    # Additional launch flags
-    flags = [ ];
-  };
-  networking = {
-    nameservers = [ "127.0.0.1" ];
-    networkmanager.dns = "none";
-  };
-
-  # Enable sound with pipewire.
+# Enable sound with pipewire.
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
