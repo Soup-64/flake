@@ -147,7 +147,6 @@
     # piper # very broken as of 6/21/2026
     mpv
     mangohud
-    goverlay
     kdiskmark
     kdePackages.partitionmanager
     kdePackages.kgpg
