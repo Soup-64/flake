@@ -158,6 +158,7 @@
 
   environment.systemPackages = with pkgs; [
     tree
+    openssl
     cifs-utils
     jq
     keyutils
