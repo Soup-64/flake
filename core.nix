@@ -123,6 +123,7 @@
       # Plain DNS upstream
       upstream = [ "https://cloudflare-dns.com/dns-query" ];
       bootstrap = [
+        "141.219.100.30"
         "141.219.70.130"
         "1.1.1.1" 
         "1.0.0.1" 

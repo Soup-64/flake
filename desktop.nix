@@ -118,6 +118,7 @@
   # SOFTWARE
 
   environment.systemPackages = with pkgs; [
+    mindustry-wayland
     strawberry
     wineWow64Packages.staging
     jdt-language-server
