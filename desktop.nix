@@ -68,14 +68,12 @@
     "ntsync"
   ];
 
-  services.scx = {
+  services.scx-loader = {
     enable = true;
-    scheduler = "scx_lavd";
-    extraArgs = [
-      "--performance" # lavd thing
-      "--pinned-slice-us"
-      "500"
-    ];
+    config = {
+	default_sched = "scx_lavd";
+	default_mode = "Gaming";
+    };
   };
 
   # FONTS
@@ -175,7 +173,7 @@
       withOpenASAR = false;
       withVencord = true;
     })
-    #vesktop
+    vesktop
     jetbrains.pycharm
     #jetbrains.clion
     darktable
