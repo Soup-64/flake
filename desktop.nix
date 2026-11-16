@@ -163,6 +163,7 @@
     kdePackages.kdegraphics-thumbnailers
     kdePackages.ffmpegthumbs
     kdePackages.kdialog
+    klassy
     (kdePackages.spectacle.override {
       tesseractLanguages = [ "all" ];
     })
